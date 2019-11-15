@@ -1,0 +1,9 @@
+{
+  "DEBUG": true,
+  "SECRET_KEY": "alpw409nfk23490f",
+  "LOG_DEBUG": true,
+  "COUCHDB_USERNAME": "admin",
+  "COUCHDB_PASSWORD": "secret",
+  "MAIL_SERVER": "localhost",
+  "MAIL_DEFAULT_SENDER": "Me Myselfs <a.non@uni.org>"
+}
