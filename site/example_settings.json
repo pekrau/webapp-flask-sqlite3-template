@@ -2,8 +2,7 @@
   "DEBUG": true,
   "SECRET_KEY": "alpw409nfk23490f",
   "LOG_DEBUG": true,
-  "COUCHDB_USERNAME": "admin",
-  "COUCHDB_PASSWORD": "secret",
+  "SQLITE3_FILE": "example_db.sqlite3",
   "MAIL_SERVER": "localhost",
   "MAIL_DEFAULT_SENDER": "Me Myselfs <a.non@uni.org>"
 }

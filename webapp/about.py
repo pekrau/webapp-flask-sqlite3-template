@@ -1,8 +1,8 @@
 "About info HTMl endpoints."
 
+import sqlite3
 import sys
 
-import couchdb2
 import flask
 import jsonschema
 
@@ -25,10 +25,7 @@ def get_software():
         (constants.SOURCE_NAME, webapp.__version__, constants.SOURCE_URL),
         ('Python', f"{v.major}.{v.minor}.{v.micro}", 'https://www.python.org/'),
         ('Flask', flask.__version__, 'http://flask.pocoo.org/'),
-        ('CouchDB server', flask.g.dbserver.version, 
-         'https://couchdb.apache.org/'),
-        ('CouchDB2 interface', couchdb2.__version__, 
-         'https://pypi.org/project/couchdb2'),
+        ('Sqlite3', sqlite3.version, 'https://www.sqlite.org/index.html'),
         ('jsonschema', jsonschema.__version__, 
          'https://pypi.org/project/jsonschema'),
         ('Bootstrap', constants.BOOTSTRAP_VERSION, 'https://getbootstrap.com/'),

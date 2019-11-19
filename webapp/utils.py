@@ -3,11 +3,12 @@
 import datetime
 import functools
 import http.client
+import json
 import logging
+import sqlite3
 import time
 import uuid
 
-import couchdb2
 import flask
 import flask_mail
 import jinja2.utils
@@ -15,11 +16,22 @@ import werkzeug.routing
 
 from . import constants
 
-LOGS_DESIGN_DOC = {
-    'views': {
-        'doc': {'map': "function(doc) {if (doc.doctype !== 'log') return; emit([doc.docid, doc.timestamp], null);}"}
-    },
-}
+def init(app):
+    "Initialize the database; create logs table."
+    db = get_db(app)
+    with db:
+        db.execute('CREATE TABLE IF NOT EXISTS logs'
+                   '(iuid TEXT PRIMARY KEY,'
+                   ' docid TEXT NOT NULL,'
+                   ' added TEXT NOT NULL,'
+                   ' updated TEXT NOT NULL,'
+                   ' removed TEXT NOT NULL,'
+                   ' username TEXT,'
+                   ' remote_addr TEXT,'
+                   ' user_agent TEXT,'
+                   ' timestamp TEXT NOT NULL)')
+        db.execute('CREATE INDEX IF NOT EXISTS'
+                   ' logs_docid_index ON logs (docid)')
 
 # Global logger instance.
 _logger = None
@@ -47,7 +59,7 @@ def get_logger():
     return _logger
 
 def log_access(response):
-    "Record access in the log."
+    "Record access using the logger."
     if flask.g.current_user:
         username = flask.g.current_user['username']
     else:
@@ -218,32 +230,28 @@ def jsonify(result, schema_url=None):
         response.headers.add('Link', schema_url, rel='schema')
     return response
 
-def get_dbserver(app=None):
-    "Get the connection to the CouchDB database server."
+def get_db(app=None):
+    "Get the connection to the Sqlite3 database file."
     if app is None:
         app = flask.current_app
-    return couchdb2.Server(href=app.config['COUCHDB_URL'],
-                           username=app.config['COUCHDB_USERNAME'],
-                           password=app.config['COUCHDB_PASSWORD'])
-
-def get_db(dbserver=None, app=None):
-    if app is None:
-        app = flask.current_app
-    if dbserver is None:
-        dbserver = get_dbserver(app=app)
-    return dbserver[app.config['COUCHDB_DBNAME']]
+    db = sqlite3.connect(app.config['SQLITE3_FILE'])
+    db.row_factory = sqlite3.Row
+    return db
 
 def get_logs(docid):
     """Return the list of log entries for the given document identifier,
     sorted by reverse timestamp.
     """
-    result = [r.doc for r in flask.g.db.view('logs', 'doc',
-                                             startkey=[docid, 'ZZZZZZ'],
-                                             endkey=[docid],
-                                             descending=True,
-                                             include_docs=True)]
-    # Remove irrelevant entries.
-    for log in result:
-        for key in ['_id', '_rev', 'doctype', 'docid']:
-            log.pop(key)
+    cursor = flask.g.db.cursor()
+    cursor.execute("SELECT added, updated, removed, username,"
+                   " remote_addr, user_agent, timestamp"
+                   " FROM logs WHERE docid=?"
+                   " ORDER BY timestamp DESC", (docid,))
+    result = []
+    for row in cursor:
+        item = dict(zip(row.keys(), row))
+        item['added'] = json.loads(item['added'])
+        item['updated'] = json.loads(item['updated'])
+        item['removed'] = json.loads(item['removed'])
+        result.append(item)
     return result

@@ -20,10 +20,10 @@ app = flask.Flask(__name__)
 app.url_map.converters['name'] = utils.NameConverter
 app.url_map.converters['iuid'] = utils.IuidConverter
 
-# Get the configuration.
+# Get the configuration, and initialize modules (database).
 webapp.config.init(app)
-
-# Init the mail handler.
+utils.init(app)
+webapp.user.init(app)
 utils.mail.init_app(app)
 
 # Add template filters.
@@ -35,20 +35,10 @@ def setup_template_context():
     return dict(constants=constants,
                 csrf_token=utils.csrf_token)
 
-@app.before_first_request
-def init_database():
-    db = utils.get_db()
-    logger = utils.get_logger()
-    if db.put_design('logs', utils.LOGS_DESIGN_DOC):
-        logger.info('Updated logs design document.')
-    if db.put_design('users', webapp.user.USERS_DESIGN_DOC):
-        logger.info('Updated users design document.')
-
 @app.before_request
 def prepare():
     "Open the database connection; get the current user."
-    flask.g.dbserver = utils.get_dbserver()
-    flask.g.db = utils.get_db(dbserver=flask.g.dbserver)
+    flask.g.db = utils.get_db()
     flask.g.current_user = webapp.user.get_current_user()
     flask.g.is_admin = flask.g.current_user and \
                        flask.g.current_user['role'] == constants.ADMIN

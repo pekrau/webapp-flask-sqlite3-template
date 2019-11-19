@@ -12,14 +12,29 @@ from . import constants
 from . import utils
 from .saver import BaseSaver
 
-USERS_DESIGN_DOC = {
-    'views': {
-        'username': {'map': "function(doc) {if (doc.doctype !== 'user') return; emit(doc.username, null);}"},
-        'email': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.email, null);}"},
-        'apikey': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.apikey, null);}"},
-        'role': {'map': "function(doc) {if (doc.doctype !== 'user') return;  emit(doc.role, null);}"},
-    },
-}
+KEYS = ['iuid', 'username', 'email', 'role', 'status',
+        'password', 'apikey', 'created', 'modified']
+
+def init(app):
+    "Initialize the database: create user table."
+    db = utils.get_db(app)
+    with db:
+        db.execute('CREATE TABLE IF NOT EXISTS users'
+                   '(iuid TEXT PRIMARY KEY,'
+                   ' username TEXT NOT NULL,'
+                   ' email TEXT NOT NULL,'
+                   ' role TEXT NOT NULL,'
+                   ' status TEXT NOT NULL,'
+                   ' password TEXT,'
+                   ' apikey TEXT,'
+                   ' created TEXT NOT NULL,'
+                   ' modified TEXT NOT NULL)')
+        db.execute('CREATE UNIQUE INDEX IF NOT EXISTS'
+                   ' users_username_index ON users (username)')
+        db.execute('CREATE UNIQUE INDEX IF NOT EXISTS'
+                   ' users_email_index ON users (email)')
+        db.execute('CREATE UNIQUE INDEX IF NOT EXISTS'
+                   ' users_apikey_index ON users (apikey)')
 
 blueprint = flask.Blueprint('user', __name__)
 
@@ -197,7 +212,9 @@ def edit(username):
         if not is_empty(user):
             utils.flash_error('cannot delete non-empty user account')
             return flask.redirect(flask.url_for('.display', username=username))
-        flask.g.db.delete(user)
+        with flask.g.db:
+            flask.g.db.execute("DELETE FROM logs WHERE docid=?",(user['iuid'],))
+            flask.g.db.execute("DELETE FROM users WHERE username=?",(username,))
         utils.flash_message(f"Deleted user {username}.")
         utils.get_logger().info(f"deleted user {username}")
         if flask.g.is_admin:
@@ -221,14 +238,13 @@ def logs(username):
         title=f"User {user['username']}",
         cancel_url=flask.url_for('.display', username=user['username']),
         api_logs_url=flask.url_for('api_user.logs', username=user['username']),
-        logs=utils.get_logs(user['_id']))
+        logs=utils.get_logs(user['iuid']))
 
 @blueprint.route('/all')
 @utils.admin_required
 def all():
     "Display list of all users."
-    users = get_users(role=None)
-    return flask.render_template('user/all.html', users=users)
+    return flask.render_template('user/all.html', users=get_users())
 
 @blueprint.route('/enable/<name:username>', methods=['POST'])
 @utils.admin_required
@@ -262,7 +278,6 @@ def disable(username):
 class UserSaver(BaseSaver):
     "User document saver context."
 
-    DOCTYPE = constants.DOCTYPE_USER
     HIDDEN_FIELDS = ['password']
 
     def initialize(self):
@@ -314,7 +329,6 @@ class UserSaver(BaseSaver):
         config = flask.current_app.config
         if password is None:
             self.doc['password'] = "code:%s" % utils.get_iuid()
-            print('set_password', self.doc['password'])
         else:
             if len(password) < config['MIN_PASSWORD_LENGTH']:
                 raise ValueError('password too short')
@@ -325,6 +339,26 @@ class UserSaver(BaseSaver):
         "Set a new API key."
         self.doc['apikey'] = utils.get_iuid()
 
+    def upsert(self):
+        "Actually insert or update the user in the database."
+        # Cannot use the Sqlite3 native UPSERT: was included only in v 3.24.0
+        cursor = flask.g.db.cursor()
+        rows = list(cursor.execute("SELECT COUNT(*) FROM users WHERE iuid=?",
+                                   (self.doc['iuid'],)))
+        if rows[0][0] == 0:
+            with flask.g.db:
+                cursor.execute(f"INSERT INTO users ({','.join(KEYS)})"
+                               f" VALUES ({','.join('?'*len(KEYS))})",
+                               [self.doc[k] for k in KEYS])
+        else:
+            with flask.g.db:
+                keys = KEYS[1:] # Skip 'iuid'
+                assignments = [f"{k}=?" for k in keys]
+                values = [self.doc[k] for k in keys]
+                values.append(self.doc['iuid'])
+                cursor.execute("UPDATE users SET"
+                               f" {','.join(assignments)}"
+                               "WHERE iuid=?", values)
 
 # Utility functions
 
@@ -332,36 +366,36 @@ def get_user(username=None, email=None, apikey=None):
     """Return the user for the given username, email or apikey.
     Return None if no such user.
     """
+    sql = f"SELECT {','.join(KEYS)} FROM users"
+    cursor = flask.g.db.cursor()
     if username:
-        rows = flask.g.db.view('users', 'username', 
-                               key=username, include_docs=True)
-        if len(rows) == 1:
-            return rows[0].doc
-    if email:
-        rows = flask.g.db.view('users', 'email',
-                               key=email, include_docs=True)
-        if len(rows) == 1:
-            return rows[0].doc
-    if apikey:
-        rows = flask.g.db.view('users', 'apikey', 
-                               key=apikey, include_docs=True)
-        if len(rows) == 1:
-            return rows[0].doc
-    return None
+        cursor.execute(sql + " WHERE username=?", (username,))
+    elif email:
+        cursor.execute(sql + " WHERE email=?", (email,))
+    elif apikey:
+        cursor.execute(sql + " WHERE apikey=?", (apikey,))
+    else:
+        return None
+    rows = list(cursor)
+    if len(rows) == 0:
+        return None
+    else:
+        return dict(zip(rows[0].keys(), rows[0]))
 
-def get_users(role, status=None):
-    "Get the users specified by role and optionally by status."
+def get_users(role=None, status=None):
+    "Get the users optionally specified by role and status."
     assert role is None or role in constants.USER_ROLES
     assert status is None or status in constants.USER_STATUSES
+    cursor = flask.g.db.cursor()
     if role is None:
-        result = [r.doc for r in 
-                  flask.g.db.view('users', 'role', include_docs=True)]
+        rows = cursor.execute(f"SELECT {','.join(KEYS)} FROM users")
+    elif status is None:
+        rows = cursor.execute(f"SELECT {','.join(KEYS)} FROM users"
+                              " WHERE role=?", (role,))
     else:
-        result = [r.doc for r in 
-                  flask.g.db.view('users', 'role', key=role, include_docs=True)]
-    if status is not None:
-        result = [d for d in result if d['status'] == status]
-    return result
+        rows = cursor.execute(f"SELECT {','.join(KEYS)} FROM users"
+                              " WHERE role=? AND status=?", (role, status))
+    return [dict(zip(row.keys(), row)) for row in rows]
 
 def get_current_user():
     """Return the user for the current session.

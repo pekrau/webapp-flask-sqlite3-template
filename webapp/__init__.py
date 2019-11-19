@@ -2,12 +2,12 @@
 
 import re
 
-__version__ = '0.0.1
+__version__ = '0.1.0'
 
 class Constants:
     VERSION     = __version__
     SOURCE_NAME = 'webapp'
-    SOURCE_URL  = 'https://github.com/pekrau/webapp-flask-couchdb-template'
+    SOURCE_URL  = 'https://github.com/pekrau/webapp-flask-sqlite3-template'
 
     BOOTSTRAP_VERSION  = '4.3.1'
     JQUERY_VERSION     = '3.3.1'
@@ -16,10 +16,6 @@ class Constants:
     NAME_RX  = re.compile(r'^[a-z][a-z0-9_-]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
     EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-
-    # CouchDB document types
-    DOCTYPE_USER = 'user'
-    DOCTYPE_LOG  = 'log'
 
     # User roles
     ADMIN = 'admin'

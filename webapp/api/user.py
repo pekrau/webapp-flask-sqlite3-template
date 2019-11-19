@@ -12,7 +12,7 @@ blueprint = flask.Blueprint('api_user', __name__)
 
 @blueprint.route('/')
 def all():
-    users = [get_user_basic(u) for u in webapp.user.get_users(role=None)]
+    users = [get_user_basic(u) for u in webapp.user.get_users()]
     return utils.jsonify(utils.get_json(users=users),
                          schema_url=utils.url_for('api_schema.users'))
 
