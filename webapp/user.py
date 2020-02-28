@@ -112,8 +112,9 @@ def register():
 def reset():
     "Reset the password for a user account and send email."
     if utils.http_GET():
-        return flask.render_template('user/reset.html',
-                                     email=flask.request.args.get('email') or '')
+        email = flask.request.args.get('email') or ''
+        email = email.lower()
+        return flask.render_template('user/reset.html', email=email)
 
     elif utils.http_POST():
         try:
@@ -307,6 +308,7 @@ class UserSaver(BaseSaver):
         self.doc['username'] = username
 
     def set_email(self, email):
+        email = email.lower()
         if not constants.EMAIL_RX.match(email):
             raise ValueError('invalid email')
         if get_user(email=email):
@@ -375,7 +377,7 @@ def get_user(username=None, email=None, apikey=None):
     if username:
         cursor.execute(sql + " WHERE username=?", (username,))
     elif email:
-        cursor.execute(sql + " WHERE email=?", (email,))
+        cursor.execute(sql + " WHERE email=?", (email.lower(),))
     elif apikey:
         cursor.execute(sql + " WHERE apikey=?", (apikey,))
     else:
