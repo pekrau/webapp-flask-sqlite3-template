@@ -15,7 +15,7 @@ class Constants:
 
     NAME_RX  = re.compile(r'^[a-z][a-z0-9_-]*$', re.I)
     IUID_RX  = re.compile(r'^[a-f0-9]{32,32}$', re.I)
-    EMAIL_RX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+    EMAIL_RX = re.compile(r'^[a-z0-9_.+-]+@[a-z0-9-]+\.[a-z0-9-.]+$')
 
     # User roles
     ADMIN = 'admin'
