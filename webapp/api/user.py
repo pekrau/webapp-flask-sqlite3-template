@@ -5,7 +5,7 @@ import http.client
 import flask
 
 import webapp.user
-from .. import utils
+from webapp import utils
 
 
 blueprint = flask.Blueprint('api_user', __name__)

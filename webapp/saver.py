@@ -5,8 +5,8 @@ import json
 
 import flask
 
-from . import constants
-from . import utils
+from webapp import constants
+from webapp import utils
 
 
 class BaseSaver:

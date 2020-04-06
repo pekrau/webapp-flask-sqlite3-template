@@ -14,7 +14,7 @@ import flask_mail
 import jinja2.utils
 import werkzeug.routing
 
-from . import constants
+from webapp import constants
 
 def init(app):
     "Initialize the database; create logs table."

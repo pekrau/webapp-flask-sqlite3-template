@@ -7,8 +7,8 @@ import flask
 import jsonschema
 
 import webapp
-from . import constants
-from . import utils
+from webapp import constants
+from webapp import utils
 
 
 blueprint = flask.Blueprint('about', __name__)

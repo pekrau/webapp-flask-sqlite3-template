@@ -3,8 +3,8 @@
 import os
 import os.path
 
-from . import constants
-from . import utils
+from webapp import constants
+from webapp import utils
 
 ROOT_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
