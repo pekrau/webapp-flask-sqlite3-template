@@ -18,8 +18,8 @@ class BaseSaver:
     def __init__(self, doc=None):
         if doc is None:
             self.original = {}
-            self.doc = {'iuid': utils.get_iuid(),
-                        'created': utils.get_time()}
+            self.doc = {"iuid": utils.get_iuid(),
+                        "created": utils.get_time()}
             self.initialize()
         else:
             self.original = copy.deepcopy(doc)
@@ -32,7 +32,7 @@ class BaseSaver:
     def __exit__(self, etyp, einst, etb):
         if etyp is not None: return False
         self.finalize()
-        self.doc['modified'] = utils.get_time()
+        self.doc["modified"] = utils.get_time()
         self.upsert()
         self.add_log()
 
@@ -71,25 +71,25 @@ class BaseSaver:
                         if self.doc[k] != self.original[k]])
         removed = dict([(k, self.original[k])
                         for k in set(self.original or {}).difference(self.doc)])
-        for key in ['iuid', 'modified']:
+        for key in ["iuid", "modified"]:
             try:
                 added.remove(key)
             except ValueError:
                 pass
-        updated.pop('modified', None)
+        updated.pop("modified", None)
         for key in self.HIDDEN_FIELDS:
             if key in updated:
-                updated[key] = '***'
+                updated[key] = "***"
             if key in removed:
-                removed[key] = '***'
+                removed[key] = "***"
         values = [utils.get_iuid(),
-                  self.doc['iuid'],
+                  self.doc["iuid"],
                   json.dumps(added),
                   json.dumps(updated),
                   json.dumps(removed),
                   utils.get_time()]
-        if hasattr(flask.g, 'current_user') and flask.g.current_user:
-            values.append(flask.g.current_user['username'])
+        if hasattr(flask.g, "current_user") and flask.g.current_user:
+            values.append(flask.g.current_user["username"])
         else:
             values.append(None)
         if flask.has_request_context():

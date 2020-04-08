@@ -15,39 +15,39 @@ from webapp import utils
 
 def get_parser():
     "Get the parser for the command line tool."
-    p = argparse.ArgumentParser(prog='command_line_tool.py',
-                                usage='python %(prog)s [options]',
-                                description='webapp command line tool')
-    p.add_argument('-d', '--debug', action='store_true',
-                    help='Debug logging output.')
+    p = argparse.ArgumentParser(prog="command_line_tool.py",
+                                usage="python %(prog)s [options]",
+                                description="webapp command line tool")
+    p.add_argument("-d", "--debug", action="store_true",
+                    help="Debug logging output.")
     x0 = p.add_mutually_exclusive_group()
-    x0.add_argument('-A', '--create_admin', action='store_true',
-                    help='Create an admin user.')
-    x0.add_argument('-U', '--create_user', action='store_true',
-                    help='Create a user.')
+    x0.add_argument("-A", "--create_admin", action="store_true",
+                    help="Create an admin user.")
+    x0.add_argument("-U", "--create_user", action="store_true",
+                    help="Create a user.")
     return p
 
 def execute(pargs):
     "Execute the command."
     if pargs.debug:
-        flask.current_app.config['DEBUG'] = True
-        flask.current_app.config['LOGFORMAT'] = '%(levelname)-10s %(message)s'
+        flask.current_app.config["DEBUG"] = True
+        flask.current_app.config["LOGFORMAT"] = "%(levelname)-10s %(message)s"
     if pargs.create_admin:
         with webapp.user.UserSaver() as saver:
-            saver.set_username(input('username > '))
-            saver.set_email(input('email > '))
-            saver.set_password(getpass.getpass('password > '))
+            saver.set_username(input("username > "))
+            saver.set_email(input("email > "))
+            saver.set_password(getpass.getpass("password > "))
             saver.set_role(constants.ADMIN)
             saver.set_status(constants.ENABLED)
-            saver['apikey'] = None
+            saver["apikey"] = None
     elif pargs.create_user:
         with webapp.user.UserSaver() as saver:
-            saver.set_username(input('username > '))
-            saver.set_email(input('email > '))
-            saver.set_password(getpass.getpass('password > '))
+            saver.set_username(input("username > "))
+            saver.set_email(input("email > "))
+            saver.set_password(getpass.getpass("password > "))
             saver.set_role(constants.USER)
             saver.set_status(constants.ENABLED)
-            saver['apikey'] = None
+            saver["apikey"] = None
 
 def main():
     "Entry point for command line tool."
@@ -59,5 +59,5 @@ def main():
         flask.g.db = utils.get_db()
         execute(pargs)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

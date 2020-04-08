@@ -20,18 +20,18 @@ def init(app):
     "Initialize the database; create logs table."
     db = get_db(app)
     with db:
-        db.execute('CREATE TABLE IF NOT EXISTS logs'
-                   '(iuid TEXT PRIMARY KEY,'
-                   ' docid TEXT NOT NULL,'
-                   ' added TEXT NOT NULL,'
-                   ' updated TEXT NOT NULL,'
-                   ' removed TEXT NOT NULL,'
-                   ' username TEXT,'
-                   ' remote_addr TEXT,'
-                   ' user_agent TEXT,'
-                   ' timestamp TEXT NOT NULL)')
-        db.execute('CREATE INDEX IF NOT EXISTS'
-                   ' logs_docid_index ON logs (docid)')
+        db.execute("CREATE TABLE IF NOT EXISTS logs"
+                   "(iuid TEXT PRIMARY KEY,"
+                   " docid TEXT NOT NULL,"
+                   " added TEXT NOT NULL,"
+                   " updated TEXT NOT NULL,"
+                   " removed TEXT NOT NULL,"
+                   " username TEXT,"
+                   " remote_addr TEXT,"
+                   " user_agent TEXT,"
+                   " timestamp TEXT NOT NULL)")
+        db.execute("CREATE INDEX IF NOT EXISTS"
+                   " logs_docid_index ON logs (docid)")
 
 # Global logger instance.
 _logger = None
@@ -39,29 +39,29 @@ def get_logger():
     global _logger
     if _logger is None:
         config = flask.current_app.config
-        _logger = logging.getLogger(config['LOG_NAME'])
-        if config['LOG_DEBUG']:
+        _logger = logging.getLogger(config["LOG_NAME"])
+        if config["LOG_DEBUG"]:
             _logger.setLevel(logging.DEBUG)
         else:
             _logger.setLevel(logging.WARNING)
-        if config['LOG_FILEPATH']:
-            if config['LOG_ROTATING']:
+        if config["LOG_FILEPATH"]:
+            if config["LOG_ROTATING"]:
                 loghandler = logging.TimedRotatingFileHandler(
-                    config['LOG_FILEPATH'],
-                    when='midnight',
-                    backupCount=config['LOG_ROTATING'])
+                    config["LOG_FILEPATH"],
+                    when="midnight",
+                    backupCount=config["LOG_ROTATING"])
             else:
-                loghandler = logging.FileHandler(config['LOG_FILEPATH'])
+                loghandler = logging.FileHandler(config["LOG_FILEPATH"])
         else:
             loghandler = logging.StreamHandler()
-        loghandler.setFormatter(logging.Formatter(config['LOG_FORMAT']))
+        loghandler.setFormatter(logging.Formatter(config["LOG_FORMAT"]))
         _logger.addHandler(loghandler)
     return _logger
 
 def log_access(response):
     "Record access using the logger."
     if flask.g.current_user:
-        username = flask.g.current_user['username']
+        username = flask.g.current_user["username"]
     else:
         username = None
     get_logger().debug(f"{flask.request.remote_addr} {username}"
@@ -78,7 +78,7 @@ def login_required(f):
     @functools.wraps(f)
     def wrap(*args, **kwargs):
         if not flask.g.current_user:
-            url = flask.url_for('user.login', next=flask.request.base_url)
+            url = flask.url_for("user.login", next=flask.request.base_url)
             return flask.redirect(url)
         return f(*args, **kwargs)
     return wrap
@@ -129,7 +129,7 @@ def to_bool(s):
     "Convert string value into boolean."
     if not s: return False
     s = s.lower()
-    return s in ('true', 't', 'yes', 'y')
+    return s in ("true", "t", "yes", "y")
 
 def get_time(offset=None):
     """Current date and time (UTC) in ISO format, with millisecond precision.
@@ -147,12 +147,12 @@ def url_for(endpoint, **values):
 
 def http_GET():
     "Is the HTTP method GET?"
-    return flask.request.method == 'GET'
+    return flask.request.method == "GET"
 
 def http_POST(csrf=True):
     "Is the HTTP method POST? Check whether used for method tunneling."
-    if flask.request.method != 'POST': return False
-    if flask.request.form.get('_http_method') in (None, 'POST'):
+    if flask.request.method != "POST": return False
+    if flask.request.form.get("_http_method") in (None, "POST"):
         if csrf: check_csrf_token()
         return True
     else:
@@ -160,45 +160,45 @@ def http_POST(csrf=True):
 
 def http_PUT():
     "Is the HTTP method PUT? Is not tunneled."
-    return flask.request.method == 'PUT'
+    return flask.request.method == "PUT"
 
 def http_DELETE(csrf=True):
     "Is the HTTP method DELETE? Check for method tunneling."
-    if flask.request.method == 'DELETE': return True
-    if flask.request.method == 'POST':
+    if flask.request.method == "DELETE": return True
+    if flask.request.method == "POST":
         if csrf: check_csrf_token()
-        return flask.request.form.get('_http_method') == 'DELETE'
+        return flask.request.form.get("_http_method") == "DELETE"
     else:
         return False
 
 def csrf_token():
     "Output HTML for cross-site request forgery (CSRF) protection."
     # Generate a token to last the session's lifetime.
-    if '_csrf_token' not in flask.session:
-        flask.session['_csrf_token'] = get_iuid()
+    if "_csrf_token" not in flask.session:
+        flask.session["_csrf_token"] = get_iuid()
     html = '<input type="hidden" name="_csrf_token" value="%s">' % \
-           flask.session['_csrf_token']
+           flask.session["_csrf_token"]
     return jinja2.utils.Markup(html)
 
 def check_csrf_token():
     "Check the CSRF token for POST HTML."
     # Do not use up the token; keep it for the session's lifetime.
-    token = flask.session.get('_csrf_token', None)
-    if not token or token != flask.request.form.get('_csrf_token'):
+    token = flask.session.get("_csrf_token", None)
+    if not token or token != flask.request.form.get("_csrf_token"):
         flask.abort(http.client.BAD_REQUEST)
 
 def flash_error(msg):
     "Flash error message."
-    flask.flash(str(msg), 'error')
+    flask.flash(str(msg), "error")
 
 def flash_message(msg):
     "Flash information message."
-    flask.flash(str(msg), 'message')
+    flask.flash(str(msg), "message")
 
 def thousands(value):
     "Template filter: Output integer with thousands delimiters."
     if isinstance(value, int):
-        return '{:,}'.format(value)
+        return "{:,}".format(value)
     else:
         return value
 
@@ -211,14 +211,14 @@ def accept_json():
 
 def get_json(**data):
     "Return the JSON structure after fixing up for external representation."
-    result = {'$id': flask.request.url,
-              'timestamp': get_time()}
+    result = {"$id": flask.request.url,
+              "timestamp": get_time()}
     try:
-        result['iuid'] = data.pop('_id')
+        result["iuid"] = data.pop("_id")
     except KeyError:
         pass
-    data.pop('_rev', None)
-    data.pop('doctype', None)
+    data.pop("_rev", None)
+    data.pop("doctype", None)
     result.update(data)
     return result
 
@@ -227,14 +227,14 @@ def jsonify(result, schema_url=None):
     Optionally add a header Link to the schema."""
     response = flask.jsonify(result)
     if schema_url:
-        response.headers.add('Link', schema_url, rel='schema')
+        response.headers.add("Link", schema_url, rel="schema")
     return response
 
 def get_db(app=None):
     "Get the connection to the Sqlite3 database file."
     if app is None:
         app = flask.current_app
-    db = sqlite3.connect(app.config['SQLITE3_FILE'])
+    db = sqlite3.connect(app.config["SQLITE3_FILE"])
     db.row_factory = sqlite3.Row
     return db
 
@@ -250,8 +250,8 @@ def get_logs(docid):
     result = []
     for row in cursor:
         item = dict(zip(row.keys(), row))
-        item['added'] = json.loads(item['added'])
-        item['updated'] = json.loads(item['updated'])
-        item['removed'] = json.loads(item['removed'])
+        item["added"] = json.loads(item["added"])
+        item["updated"] = json.loads(item["updated"])
+        item["removed"] = json.loads(item["removed"])
         result.append(item)
     return result
