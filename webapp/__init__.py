@@ -2,11 +2,11 @@
 
 import re
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 class Constants:
     VERSION     = __version__
-    SOURCE_NAME = "webapp"
+    SOURCE_NAME = "webapp-sqlite3"
     SOURCE_URL  = "https://github.com/pekrau/webapp-flask-sqlite3-template"
 
     BOOTSTRAP_VERSION  = "4.3.1"

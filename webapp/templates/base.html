@@ -85,9 +85,9 @@
     </nav>
 
     <div class="container-fluid">
+      {% block flash %}
       <div class="row">
-        <div class="col-md-9 offset-md-1">
-          <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
+        <div class="col-md">
           {% for msg in get_flashed_messages(category_filter=['error']) %}
           <div class="alert alert-danger" role="alert">
             <strong>Error:</strong> {{ msg }}
@@ -99,11 +99,19 @@
           </div>
           {% endfor %}
         </div>
+      </div>
+      {% endblock %} {# block flash #}
+      {% block header %}
+      <div class="row">
+        <div class="col-md-9 offset-md-1">
+          <h2 class="mt-2 mb-3">{% block body_title %}{{ config['SITE_NAME'] }}{% endblock %}</h2>
+        </div>
         <div class="col-md-2 py-1">
           {% block meta %}
           {% endblock %}
         </div>
       </div>
+      {% endblock %} {# block header #}
 
       {% block supermain %}
       <div class="row">
