@@ -32,7 +32,7 @@ def root():
             "href": utils.url_for("api_user.display",
                                   username=flask.g.current_user["username"])
         }
-    if flask.g.is_admin:
+    if flask.g.am_admin:
         items["users"] = {
             "href": utils.url_for("api_user.all")
         }

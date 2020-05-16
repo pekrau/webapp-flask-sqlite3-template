@@ -40,7 +40,7 @@
       </button>
       <div class="collapse navbar-collapse" id="top_navbar">
         <ul class="navbar-nav mr-auto">
-          {% if g.is_admin %}
+          {% if g.am_admin %}
           <li class="nav-item dropdown">
             <a href="#" id="navbarAdmin" class="nav-link dropdown-toggle pr-4"
                role="button" data-toggle="dropdown"
@@ -52,7 +52,7 @@
                  href="{{ url_for('about.settings') }}">Settings</a>
             </div>
           </li>
-          {% endif %} {# if g.is_admin #}
+          {% endif %} {# if g.am_admin #}
         </ul>
 
         <ul class="navbar-nav justify-content-end">

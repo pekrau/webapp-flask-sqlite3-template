@@ -174,12 +174,12 @@ def display(username):
     if user is None:
         utils.flash_error("No such user.")
         return flask.redirect(flask.url_for("home"))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error("Access not allowed.")
         return flask.redirect(flask.url_for("home"))
     return flask.render_template("user/display.html",
                                  user=user,
-                                 enable_disable=is_admin_and_not_self(user),
+                                 enable_disable=am_admin_and_not_self(user),
                                  deletable=is_empty(user))
 
 @blueprint.route("/display/<name:username>/edit",
@@ -191,22 +191,22 @@ def edit(username):
     if user is None:
         utils.flash_error("No such user.")
         return flask.redirect(flask.url_for("home"))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error("Access not allowed.")
         return flask.redirect(flask.url_for("home"))
 
     if utils.http_GET():
         return flask.render_template("user/edit.html",
                                      user=user,
-                                     change_role=is_admin_and_not_self(user))
+                                     change_role=am_admin_and_not_self(user))
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
-            if flask.g.is_admin:
+            if flask.g.am_admin:
                 email = flask.request.form.get("email")
                 if email != user["email"]:
                     saver.set_email(email)
-            if is_admin_and_not_self(user):
+            if am_admin_and_not_self(user):
                 saver.set_role(flask.request.form.get("role"))
             if flask.request.form.get("apikey"):
                 saver.set_apikey()
@@ -222,7 +222,7 @@ def edit(username):
             flask.g.db.execute("DELETE FROM users WHERE username=?",(username,))
         utils.flash_message(f"Deleted user {username}.")
         utils.get_logger().info(f"deleted user {username}")
-        if flask.g.is_admin:
+        if flask.g.am_admin:
             return flask.redirect(flask.url_for(".users"))
         else:
             return flask.redirect(flask.url_for("home"))
@@ -235,7 +235,7 @@ def logs(username):
     if user is None:
         utils.flash_error("No such user.")
         return flask.redirect(flask.url_for("home"))
-    if not is_admin_or_self(user):
+    if not am_admin_or_self(user):
         utils.flash_error("Access not allowed.")
         return flask.redirect(flask.url_for("home"))
     return flask.render_template(
@@ -444,14 +444,14 @@ def is_empty(user):
     # XXX Needs implementation.
     return False
 
-def is_admin_or_self(user):
+def am_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"
     if not flask.g.current_user: return False
-    if flask.g.is_admin: return True
+    if flask.g.am_admin: return True
     return flask.g.current_user["username"] == user["username"]
 
-def is_admin_and_not_self(user):
+def am_admin_and_not_self(user):
     "Is the current user admin, but not the same as the given user?"
-    if flask.g.is_admin:
+    if flask.g.am_admin:
         return flask.g.current_user["username"] != user["username"]
     return False

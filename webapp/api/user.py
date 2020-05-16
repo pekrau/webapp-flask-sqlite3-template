@@ -21,7 +21,7 @@ def display(username):
     user = webapp.user.get_user(username=username)
     if not user:
         flask.abort(http.client.NOT_FOUND)
-    if not webapp.user.is_admin_or_self(user):
+    if not webapp.user.am_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     user.pop("password", None)
     user.pop("apikey", None)
@@ -34,7 +34,7 @@ def logs(username):
     user = webapp.user.get_user(username=username)
     if not user:
         flask.abort(http.client.NOT_FOUND)
-    if not webapp.user.is_admin_or_self(user):
+    if not webapp.user.am_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     return utils.jsonify(utils.get_json(user=get_user_basic(user),
                                         logs=utils.get_logs(user["_id"])),

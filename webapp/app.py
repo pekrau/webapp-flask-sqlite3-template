@@ -42,7 +42,7 @@ def prepare():
     "Open the database connection; get the current user."
     flask.g.db = utils.get_db()
     flask.g.current_user = webapp.user.get_current_user()
-    flask.g.is_admin = flask.g.current_user and \
+    flask.g.am_admin = flask.g.current_user and \
                        flask.g.current_user["role"] == constants.ADMIN
 
 app.after_request(utils.log_access)
