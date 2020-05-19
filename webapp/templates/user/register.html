@@ -46,6 +46,26 @@
       </small>
     </div>
   </div>
+  {% if g.am_admin %}
+  <div class="form-group row">
+    <label for="password" class="col-md-2 col-form-label text-right">
+      Password</label>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-6">
+          <input type="password" id="password" name="password"
+                 class="form-control"
+                 aria-describedby="passwordHelp">
+        </div>
+      </div>
+      <small id="passwordHelp" class="form-text text-muted">
+        <strong>For admin only!</strong>
+        No email with a password setting code will be sent to the user
+        if the is set here.
+      </small>
+    </div>
+  </div>
+  {% endif %}
   <div class="form-group row">
     <div class="col-md-3 offset-md-2">
       <button type="submit" class="btn btn-block btn-primary">Register</button>

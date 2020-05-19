@@ -95,17 +95,27 @@ def register():
                 saver.set_username(flask.request.form.get("username"))
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_role(constants.USER)
-                saver.set_password()
+                if flask.g.am_admin:
+                    saver.set_password(flask.request.form.get("password") or None)
+                    saver.set_status(constants.ENABLED)
+                else:
+                    saver.set_password()
             user = saver.doc
         except ValueError as error:
             utils.flash_error(error)
             return flask.redirect(flask.url_for(".register"))
         utils.get_logger().info(f"registered user {user['username']}")
-        # Directly enabled; send code to the user.
         if user["status"] == constants.ENABLED:
-            send_password_code(user, "registration")
-            utils.get_logger().info(f"enabled user {user['username']}")
-            utils.flash_message("User account created; check your email.")
+            # Directly enabled; send code to the user.
+            if user["password"][:5] == "code:":
+                send_password_code(user, "registration")
+                utils.get_logger().info(f"enabled user {user['username']}")
+                utils.flash_message("User account created; check your email.")
+            # Directly enabled and password set. No email to anyone.
+            else:
+                utils.get_logger().info(f"enabled user {user['username']}"
+                                        " and set password")
+                utils.flash_message("User account created and password set.")
         # Was set to 'pending'; send email to admins.
         else:
             admins = get_users(constants.ADMIN, status=constants.ENABLED)
