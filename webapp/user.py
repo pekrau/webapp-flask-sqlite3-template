@@ -35,6 +35,19 @@ def init(app):
                    " users_email_index ON users (email)")
         db.execute("CREATE UNIQUE INDEX IF NOT EXISTS"
                    " users_apikey_index ON users (apikey)")
+    if app.config["ADMIN_USER"]:
+        with app.app_context():
+            flask.g.db = db
+            user = get_user(username=app.config["ADMIN_USER"]["username"])
+            if user is None:
+                with UserSaver() as saver:
+                    saver.set_username(app.config["ADMIN_USER"]["username"])
+                    saver.set_email(app.config["ADMIN_USER"]["email"])
+                    saver.set_role(constants.ADMIN)
+                    saver.set_status(constants.ENABLED)
+                    saver.set_password(app.config["ADMIN_USER"]["password"])
+            logger.info("Created admin user " +
+                        app.config["ADMIN_USER"]["username"])
 
 blueprint = flask.Blueprint("user", __name__)
 
