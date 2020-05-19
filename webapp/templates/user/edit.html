@@ -36,7 +36,7 @@
     <div class="col-md">
       {% for role in constants.USER_ROLES %}
       <div class="form-check">
-        <input type="checkbox" name="role" id="role_{{ role }}"
+        <input type="radio" name="role" id="role_{{ role }}"
                class="form-check-input"
                value="{{ role }}"
                {{ role == user['role'] and 'checked' or '' }}>
