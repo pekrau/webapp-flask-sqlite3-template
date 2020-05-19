@@ -179,8 +179,7 @@ def display(username):
         return flask.redirect(flask.url_for("home"))
     return flask.render_template("user/display.html",
                                  user=user,
-                                 enable_disable=am_admin_and_not_self(user),
-                                 deletable=is_empty(user))
+                                 enable_disable=am_admin_and_not_self(user))
 
 @blueprint.route("/display/<name:username>/edit",
                  methods=["GET", "POST", "DELETE"])
@@ -198,7 +197,8 @@ def edit(username):
     if utils.http_GET():
         return flask.render_template("user/edit.html",
                                      user=user,
-                                     change_role=am_admin_and_not_self(user))
+                                     change_role=am_admin_and_not_self(user),
+                                     deletable=is_empty(user))
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
@@ -223,7 +223,7 @@ def edit(username):
         utils.flash_message(f"Deleted user {username}.")
         utils.get_logger().info(f"deleted user {username}")
         if flask.g.am_admin:
-            return flask.redirect(flask.url_for(".users"))
+            return flask.redirect(flask.url_for(".all"))
         else:
             return flask.redirect(flask.url_for("home"))
 

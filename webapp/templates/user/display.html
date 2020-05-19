@@ -75,20 +75,6 @@
   </form>
 </div>
 {% endif %} {# if g.current_user... #}
-{% if deletable %}
-<div class="mt-2">
-  <form action="{{ url_for('.display', username=user['username']) }}"
-	method="POST">
-    {{ csrf_token() }}
-    <input type="hidden" name="_http_method" value="DELETE">
-    <button type="submit" class="btn btn-danger btn-block"
-	    data-toggle="tooltip" data-placement="left"
-	    title="Delete the user account."
-            onclick="return confirm('Really delete? Cannot be undone.')">
-      Delete</button>
-  </form>
-</div>
-{% endif %} {# if deletable #}
 {% endblock %} {# block actions #}
 
 {% block info %}
