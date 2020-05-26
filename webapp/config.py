@@ -29,6 +29,7 @@ DEFAULT_SETTINGS = dict(
     SQLITE3_FILE = 'webapp-data.sqlite3',
     JSON_AS_ASCII = False,
     JSON_SORT_KEYS = False,
+    JSONIFY_PRETTYPRINT_REGULAR = False,
     MIN_PASSWORD_LENGTH = 6,
     PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60, # seconds; 1 week
     MAIL_SERVER = "localhost",
