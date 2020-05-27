@@ -12,6 +12,8 @@ blueprint = flask.Blueprint("api_user", __name__)
 
 @blueprint.route("/")
 def all():
+    if not flask.g.am_admin:
+        flask.abort(http.client.FORBIDDEN)
     users = [get_user_basic(u) for u in webapp.user.get_users()]
     return utils.jsonify(utils.get_json(users=users),
                          schema_url=utils.url_for("api_schema.users"))
