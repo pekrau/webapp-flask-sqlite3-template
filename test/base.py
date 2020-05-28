@@ -69,10 +69,22 @@ class Base(unittest.TestCase):
         try:
             return self._root
         except AttributeError:
-            response = self.session.get(SETTINGS['ROOT_URL'])
+            response = self.GET(SETTINGS['ROOT_URL'])
             self.assertEqual(response.status_code, http.client.OK)
             self._root = self.check_schema(response)
             return self._root
+
+    def GET(self, url):
+        return self.session.get(url)
+
+    def POST(self, url, json=None):
+        return self.session.post(url, json=json)
+
+    def PUT(self, url):
+        return self.session.put(url)
+
+    def DELETE(self, url):
+        return self.session.delete(url)
 
     def check_schema(self, response):
         """Check that the response JSON data matches the schema
@@ -85,7 +97,7 @@ class Base(unittest.TestCase):
         try:
             schema = self.schemas[url]
         except KeyError:
-            r = self.session.get(url)
+            r = self.GET(url)
             self.assertEqual(r.status_code, http.client.OK)
             schema = r.json()
             self.schemas[url] = schema

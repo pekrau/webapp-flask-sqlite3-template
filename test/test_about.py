@@ -11,7 +11,7 @@ class About(base.Base):
     def test_software(self):
         "Get software API JSON."
         url = f"{base.SETTINGS['ROOT_URL']}/about/software"
-        response = self.session.get(url)
+        response = self.GET(url)
         self.check_schema(response)
 
 

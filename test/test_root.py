@@ -11,7 +11,7 @@ class Root(base.Base):
     def test_root_data(self):
         "Get API root JSON."
         url = f"{base.SETTINGS['ROOT_URL']}"
-        response = self.session.get(url)
+        response = self.GET(url)
         self.check_schema(response)
 
 

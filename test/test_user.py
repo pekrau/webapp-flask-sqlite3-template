@@ -11,13 +11,13 @@ class User(base.Base):
     def test_user_data(self):
         "Get user JSON."
         url = f"{base.SETTINGS['ROOT_URL']}/user/{base.SETTINGS['USERNAME']}"
-        response = self.session.get(url)
+        response = self.GET(url)
         user = self.check_schema(response)
 
     def test_users_data(self):
         "Get all users JSON."
         url = f"{base.SETTINGS['ROOT_URL']}/user"
-        response = self.session.get(url)
+        response = self.GET(url)
         user = self.check_schema(response)
 
 
