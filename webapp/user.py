@@ -6,7 +6,7 @@ import re
 
 import flask
 import flask_mail
-import werkzeug.security
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from webapp import constants
 from webapp import utils
@@ -194,18 +194,33 @@ def password():
 
     elif utils.http_POST():
         try:
-            username = flask.request.form.get("username") or ""
-            code = flask.request.form.get("code") or ""
-            if not username:
-                raise ValueError("No such user or wrong code.")
-            user = get_user(username=username)
-            if user is None:
-                raise ValueError("No such user or wrong code.")
-            if user["password"] != f"code:{code}":
-                raise ValueError("No such user or wrong code.")
+            code = ""
+            try:
+                username = flask.request.form.get("username") or ""
+                if not username: raise ValueError
+                user = get_user(username=username)
+                if user is None: raise ValueError
+                if flask.g.am_admin and \
+                   flask.g.current_user["username"] != username:
+                    pass        # No check for either code or current password.
+                elif flask.current_app.config["MAIL_SERVER"]:
+                    code = flask.request.form.get("code") or ""
+                    if user["password"] != f"code:{code}": raise ValueError
+                else:
+                    password = flask.request.form.get("current_password") or ""
+                    if not check_password_hash(user["password"], password):
+                        raise ValueError
+            except ValueError:
+                if flask.current_app.config["MAIL_SERVER"]:
+                    raise ValueError("No such user or wrong code.")
+                else:
+                    raise ValueError("No such user or wrong password.")
             password = flask.request.form.get("password") or ""
             if len(password) < flask.current_app.config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("Too short password.")
+            if not flask.current_app.config["MAIL_SERVER"]:
+                if password != flask.request.form.get("confirm_password"):
+                    raise ValueError("Wrong password entered; confirm failed.")
         except ValueError as error:
             utils.flash_error(str(error))
             return flask.redirect(flask.url_for(".password",
@@ -215,7 +230,8 @@ def password():
             with UserSaver(user) as saver:
                 saver.set_password(password)
             utils.get_logger().info(f"password user {user['username']}")
-            do_login(username, password)
+            if not flask.g.current_user:
+                do_login(username, password)
         return flask.redirect(flask.url_for("home"))
 
 @blueprint.route("/display/<name:username>")
@@ -396,7 +412,7 @@ class UserSaver(BaseSaver):
         else:
             if len(password) < config["MIN_PASSWORD_LENGTH"]:
                 raise ValueError("password too short")
-            self.doc["password"] = werkzeug.security.generate_password_hash(
+            self.doc["password"] = generate_password_hash(
                 password, salt_length=config["SALT_LENGTH"])
 
     def set_apikey(self):
@@ -478,7 +494,7 @@ def do_login(username, password):
     """
     user = get_user(username=username)
     if user is None: raise ValueError
-    if not werkzeug.security.check_password_hash(user["password"], password):
+    if not check_password_hash(user["password"], password):
         raise ValueError
     if user["status"] != constants.ENABLED:
         raise ValueError

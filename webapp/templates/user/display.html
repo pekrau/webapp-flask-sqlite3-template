@@ -41,16 +41,19 @@
   <a href="{{ url_for('.edit', username=user['username']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
-{% if config['MAIL_SERVER'] %}
 <div class="mt-2">
+  {% if config['MAIL_SERVER'] %}
   <form action="{{ url_for('.reset') }}"
         method="GET">
     <input type="hidden" name="email" value="{{ user['email'] }}">
     <button type="submit" class="btn btn-block btn-primary">
       Reset password</button>
   </form>
+  {% else %}
+  <a href="{{ url_for('.password', username=user['username']) }}"
+     role="button" class="btn btn-primary btn-block">Set password</a>
+  {% endif %}
 </div>
-{% endif %}
 {% if g.am_admin and g.current_user['username'] != user['username'] %}
 <div class="mt-2">
   {% if user['status'] != constants.ENABLED %}

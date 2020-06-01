@@ -153,7 +153,7 @@
           </a>
           {% else %}
           {% if config['HOST_LOGO'] %}
-          <img src="{{ url_for('site_file', filename=config['HOST_LOGO']) }}"
+          <img src="{{ url_for('site.static', filename=config['HOST_LOGO']) }}"
                title="{{ config['HOST_NAME'] or '' }}">
           {% else %}
           {{ config['HOST_NAME'] or '' }}
