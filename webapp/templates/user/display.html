@@ -51,7 +51,7 @@
   </form>
 </div>
 {% endif %}
-{% if enable_disable %}
+{% if g.am_admin and g.current_user['username'] != user['username'] %}
 <div class="mt-2">
   {% if user['status'] != constants.ENABLED %}
   <form action="{{ url_for('.enable', username=user['username']) }}"
@@ -67,7 +67,7 @@
   </form>
   {% endif %}
 </div>
-{% endif %} {# if enable_disable #}
+{% endif %} {# if g.am_admin and ... #}
 {% if g.current_user['username'] == user['username'] %}
 <div class="mt-2">
   <form action="{{ url_for('.logout') }}"

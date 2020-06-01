@@ -72,4 +72,5 @@ app.register_blueprint(webapp.api.user.blueprint, url_prefix="/api/user")
 
 # This code is used only during development.
 if __name__ == "__main__":
-    app.run()
+    app.run(host=app.config["SERVER_HOST"],
+            port=app.config["SERVER_PORT"])

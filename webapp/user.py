@@ -229,9 +229,7 @@ def display(username):
     if not am_admin_or_self(user):
         utils.flash_error("Access not allowed.")
         return flask.redirect(flask.url_for("home"))
-    return flask.render_template("user/display.html",
-                                 user=user,
-                                 enable_disable=am_admin_and_not_self(user))
+    return flask.render_template("user/display.html", user=user)
 
 @blueprint.route("/display/<name:username>/edit",
                  methods=["GET", "POST", "DELETE"])
@@ -311,10 +309,14 @@ def enable(username):
     if user is None:
         utils.flash_error("No such user.")
         return flask.redirect(flask.url_for("home"))
+    if user["username"] == flask.g.current_user["username"]:
+        utils.flash_error("You cannot enable yourself.")
+        return flask.redirect(flask.url_for("home"))
     with UserSaver(user) as saver:
         saver.set_status(constants.ENABLED)
-        saver.set_password()
-    send_password_code(user, "enabled")
+    if user["password"][:5] == "code:" and \
+       flask.current_app.config["MAIL_SERVER"]:
+        send_password_code(user, "enabled")
     utils.get_logger().info(f"enabled user {username}")
     return flask.redirect(flask.url_for(".display", username=username))
 
@@ -325,6 +327,9 @@ def disable(username):
     user = get_user(username=username)
     if user is None:
         utils.flash_error("No such user.")
+        return flask.redirect(flask.url_for("home"))
+    if user["username"] == flask.g.current_user["username"]:
+        utils.flash_error("You cannot disable yourself.")
         return flask.redirect(flask.url_for("home"))
     with UserSaver(user) as saver:
         saver.set_status(constants.DISABLED)

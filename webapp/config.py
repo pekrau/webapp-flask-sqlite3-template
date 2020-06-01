@@ -10,7 +10,9 @@ ROOT_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
 # Default configurable values; modified by reading a JSON file in 'init'.
 DEFAULT_SETTINGS = dict(
-    SERVER_NAME = "127.0.0.1:5003",
+    SERVER_NAME = "127.0.0.1:5003", # For URL generation.
+    SERVER_HOST = "0.0.0.0",        # For app.run()
+    SERVER_PORT = "5003",           # For app.run(); must agree with above.
     SITE_NAME = "webapp-sqlite3",
     SITE_STATIC_DIRPATH = None,
     SITE_ICON = None,           # Filename, must be in 'SITE_STATIC_DIRPATH'
