@@ -96,8 +96,22 @@ def register():
                 saver.set_email(flask.request.form.get("email"))
                 saver.set_role(constants.USER)
                 if flask.g.am_admin:
-                    saver.set_password(flask.request.form.get("password") or None)
+                    password = flask.request.form.get("password") or None
+                    if password:
+                        confirm = flask.request.form.get("confirm_password")
+                        if password != confirm:
+                            raise ValueError("Password differs from"
+                                             " confirmed password.")
+                    saver.set_password(password)
                     saver.set_status(constants.ENABLED)
+                elif not flask.current_app.config["MAIL_SERVER"]:
+                    password = flask.request.form.get("password") or None
+                    if password:
+                        confirm = flask.request.form.get("confirm_password")
+                        if password != confirm:
+                            raise ValueError("Password an confirmed password"
+                                             " not the same.")
+                    saver.set_password(password)
                 else:
                     saver.set_password()
             user = saver.doc
@@ -105,19 +119,26 @@ def register():
             utils.flash_error(error)
             return flask.redirect(flask.url_for(".register"))
         utils.get_logger().info(f"registered user {user['username']}")
+        # Directly enabled.
         if user["status"] == constants.ENABLED:
-            # Directly enabled; send code to the user.
             if user["password"][:5] == "code:":
-                send_password_code(user, "registration")
                 utils.get_logger().info(f"enabled user {user['username']}")
-                utils.flash_message("User account created; check your email.")
+                # Send code by email to user.
+                if flask.current_app.config["MAIL_SERVER"]:
+                    send_password_code(user, "registration")
+                    utils.flash_message("User account created; check your email.")
+                # No email server: must contact admin.
+                else:
+                    utils.flash_message("User account created; contact"
+                                        " the site admin to get the password"
+                                        " setting code.")
             # Directly enabled and password set. No email to anyone.
             else:
                 utils.get_logger().info(f"enabled user {user['username']}"
                                         " and set password")
                 utils.flash_message("User account created and password set.")
-        # Was set to 'pending'; send email to admins.
-        else:
+        # Was set to 'pending'; send email to admins if email server defined.
+        elif flask.current_app.config["MAIL_SERVER"]:
             admins = get_users(constants.ADMIN, status=constants.ENABLED)
             emails = [u["email"] for u in admins]
             site = flask.current_app.config["SITE_NAME"]
@@ -129,11 +150,19 @@ def register():
             utils.get_logger().info(f"pending user {user['username']}")
             utils.flash_message("User account created; an email will be sent"
                                 " when it has been enabled by the admin.")
+        else:
+            utils.get_logger().info(f"pending user {user['username']}")
+            utils.flash_message("User account created; admin will enable it"
+                                " at some point. Try login later.")
         return flask.redirect(flask.url_for("home"))
 
 @blueprint.route("/reset", methods=["GET", "POST"])
 def reset():
     "Reset the password for a user account and send email."
+    if not flask.current_app.config["MAIL_SERVER"]:
+        utils.flash_error("Cannot reset password; no email server defined.")
+        return flask.redirect(flask.url_for("home"))
+        
     if utils.http_GET():
         email = flask.request.args.get("email") or ""
         email = email.lower()
@@ -322,6 +351,7 @@ class UserSaver(BaseSaver):
                 raise ValueError("invalid user: %s not set" % key)
 
     def set_username(self, username):
+        "Username can be set only when creating the account."
         if "username" in self.doc:
             raise ValueError("username cannot be changed")
         if not constants.NAME_RX.match(username):
@@ -465,7 +495,7 @@ def send_password_code(user, action):
 def is_empty(user):
     "Is the given user account empty? No data associated with it."
     # XXX Needs implementation.
-    return False
+    return True
 
 def am_admin_or_self(user):
     "Is the current user admin, or the same as the given user?"

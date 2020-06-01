@@ -91,12 +91,12 @@
       <div class="row">
         <div class="col-md">
           {% for msg in get_flashed_messages(category_filter=['error']) %}
-          <div class="alert alert-danger" role="alert">
+          <div class="alert alert-danger mt-1" role="alert">
             <strong>Error:</strong> {{ msg }}
           </div>
           {% endfor %}
           {% for msg in get_flashed_messages(category_filter=['message']) %}
-          <div class="alert alert-warning" role="alert">
+          <div class="alert alert-warning mt-1" role="alert">
             {{ msg }}
           </div>
           {% endfor %}

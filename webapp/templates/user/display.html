@@ -41,6 +41,7 @@
   <a href="{{ url_for('.edit', username=user['username']) }}"
      role="button" class="btn btn-primary btn-block">Edit</a>
 </div>
+{% if config['MAIL_SERVER'] %}
 <div class="mt-2">
   <form action="{{ url_for('.reset') }}"
         method="GET">
@@ -49,6 +50,7 @@
       Reset password</button>
   </form>
 </div>
+{% endif %}
 {% if enable_disable %}
 <div class="mt-2">
   {% if user['status'] != constants.ENABLED %}

@@ -46,7 +46,7 @@
       </small>
     </div>
   </div>
-  {% if g.am_admin %}
+  {% if g.am_admin or not config['MAIL_SERVER'] %}
   <div class="form-group row">
     <label for="password" class="col-md-2 col-form-label text-right">
       Password</label>
@@ -59,9 +59,29 @@
         </div>
       </div>
       <small id="passwordHelp" class="form-text text-muted">
-        <strong>For admin only!</strong>
+        The password must contain at least
+        {{ config['MIN_PASSWORD_LENGTH'] }} characters.
+        {% if g.am_admin %}
+        <br>
         No email with a password setting code will be sent to the user
-        if the is set here.
+        if the password is set here.
+        {% endif %}
+      </small>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="confirm_password" class="col-md-2 col-form-label text-right">
+      Confirm password</label>
+    <div class="col-md">
+      <div class="row">
+        <div class="col-md-6">
+          <input type="password" id="confirm_password" name="confirm_password"
+                 class="form-control"
+                 aria-describedby="confirm_passwordHelp">
+        </div>
+      </div>
+      <small id="confirm_passwordHelp" class="form-text text-muted">
+        Confirm the password, to safeguard against typographical mistakes.
       </small>
     </div>
   </div>

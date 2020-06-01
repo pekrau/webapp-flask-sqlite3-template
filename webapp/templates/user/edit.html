@@ -72,8 +72,14 @@
 {% endblock %} {# block main #}
 
 {% block actions %}
+<div class="mt-2">
+  <form action="{{ url_for('.display', username=user['username']) }}"
+	method="GET">
+    <button type="submit" class="btn btn-secondary btn-block">Cancel</button>
+  </form>
+</div>
 {% if deletable %}
-<div class="mt-2 mb-4">
+<div class="mt-4">
   <form action="{{ url_for('.edit', username=user['username']) }}"
 	method="POST">
     {{ csrf_token() }}
@@ -86,10 +92,4 @@
   </form>
 </div>
 {% endif %} {# if deletable #}
-<div class="mt-2">
-  <form action="{{ url_for('.display', username=user['username']) }}"
-	method="GET">
-    <button type="submit" class="btn btn-secondary btn-block">Cancel</button>
-  </form>
-</div>
 {% endblock %}

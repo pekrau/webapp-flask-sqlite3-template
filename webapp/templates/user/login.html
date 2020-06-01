@@ -38,6 +38,7 @@
       Register a new user account</a>
   </div>
 </div>
+{% if config['MAIL_SERVER'] %}
 <div class="row pt-4">
   <div class="col-md-4 offset-md-2">
     <a href="{{ url_for('.reset') }}"
@@ -45,4 +46,5 @@
       Reset password for an existing user account</a>
   </div>
 </div>
+{% endif %}
 {% endblock %}
