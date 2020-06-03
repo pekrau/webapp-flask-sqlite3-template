@@ -55,6 +55,23 @@ def home():
     else:
         return flask.render_template("home.html")
 
+@app.route("/debug")
+@utils.admin_required
+def debug():
+    "Return some debug info for admin."
+    result = [f"<h1>Debug  {constants.VERSION}</h2>"]
+    result.append("<h2>headers</h2>")
+    result.append("<table>")
+    for key, value in sorted(flask.request.headers.items()):
+        result.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
+    result.append("</table>")
+    result.append("<h2>environ</h2>")
+    result.append("<table>")
+    for key, value in sorted(flask.request.environ.items()):
+        result.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
+    result.append("</table>")
+    return jinja2.utils.Markup("\n".join(result))
+
 # Set up the URL map.
 app.register_blueprint(webapp.about.blueprint, url_prefix="/about")
 app.register_blueprint(webapp.user.blueprint, url_prefix="/user")

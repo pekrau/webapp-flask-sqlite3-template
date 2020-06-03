@@ -35,25 +35,31 @@ def init(app):
                    " users_email_index ON users (email)")
         db.execute("CREATE UNIQUE INDEX IF NOT EXISTS"
                    " users_apikey_index ON users (apikey)")
-    if app.config["ADMIN_USER"]:
-        with app.app_context():
-            flask.g.db = db
-            user = get_user(username=app.config["ADMIN_USER"]["username"])
-            if user is None:
+
+blueprint = flask.Blueprint("user", __name__)
+
+@blueprint.route("/login", methods=["GET", "POST"])
+def login():
+    """Login to a user account.
+    Creates the admin user specified in the settings.json, if not done.
+    """
+    app = flask.current_app
+    if app.config.get("ADMIN_USER"):
+        user = get_user(username=app.config["ADMIN_USER"]["username"])
+        if user is None:
+            try:
                 with UserSaver() as saver:
                     saver.set_username(app.config["ADMIN_USER"]["username"])
                     saver.set_email(app.config["ADMIN_USER"]["email"])
                     saver.set_role(constants.ADMIN)
                     saver.set_status(constants.ENABLED)
                     saver.set_password(app.config["ADMIN_USER"]["password"])
-            logger.info("Created admin user " +
-                        app.config["ADMIN_USER"]["username"])
+                utils.get_logger().info("Created admin user " +
+                                        app.config["ADMIN_USER"]["username"])
+            except ValueError as error:
+                utils.get_logger().error("Could not create admin user;"
+                                         " misconfiguration.")
 
-blueprint = flask.Blueprint("user", __name__)
-
-@blueprint.route("/login", methods=["GET", "POST"])
-def login():
-    "Login to a user account."
     if utils.http_GET():
         return flask.render_template("user/login.html",
                                      next=flask.request.args.get("next"))
