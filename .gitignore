@@ -1,4 +1,5 @@
 *.log
 *~
+site
 settings.json
 __pycache__
