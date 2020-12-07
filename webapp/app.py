@@ -19,7 +19,7 @@ from webapp import utils
 app = flask.Flask(__name__)
 
 # Add URL map converters.
-app.url_map.converters["name"] = utils.NameConverter
+app.url_map.converters["identifier"] = utils.IdentifierConverter
 app.url_map.converters["iuid"] = utils.IuidConverter
 
 # Get the configuration, and initialize modules (database).

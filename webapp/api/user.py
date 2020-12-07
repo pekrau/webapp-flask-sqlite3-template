@@ -18,7 +18,7 @@ def all():
     return utils.jsonify(utils.get_json(users=users),
                          schema_url=utils.url_for("api_schema.users"))
 
-@blueprint.route("/<name:username>")
+@blueprint.route("/<identifier:username>")
 def display(username):
     user = webapp.user.get_user(username=username)
     if not user:
@@ -31,7 +31,7 @@ def display(username):
     return utils.jsonify(utils.get_json(**user),
                          schema_url=utils.url_for("api_schema.user"))
 
-@blueprint.route("/<name:username>/logs")
+@blueprint.route("/<identifier:username>/logs")
 def logs(username):
     user = webapp.user.get_user(username=username)
     if not user:

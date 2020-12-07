@@ -26,7 +26,7 @@ DEFAULT_SETTINGS = dict(
     HOST_URL = None,
     SECRET_KEY = None,          # Must be set in 'settings.json'
     SALT_LENGTH = 12,
-    SQLITE3_FILE = 'webapp-data.sqlite3',
+    SQLITE3_FILE = '../site/webapp-data.sqlite3',
     JSON_AS_ASCII = False,
     JSON_SORT_KEYS = False,
     JSONIFY_PRETTYPRINT_REGULAR = False,
@@ -39,8 +39,7 @@ DEFAULT_SETTINGS = dict(
     MAIL_PASSWORD = None,
     MAIL_DEFAULT_SENDER = None,
     USER_ENABLE_IMMEDIATELY = False,
-    USER_ENABLE_EMAIL_WHITELIST = [], # List of regexp's
-    ADMIN_USER = {},                  # Keys: username, email, password
+    USER_ENABLE_EMAIL_WHITELIST = [], # List of fnmatch expressions
 )
 
 def init(app):

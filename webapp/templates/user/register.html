@@ -40,9 +40,11 @@
       </div>
       <small id="emailHelp" class="form-text text-muted">
         <strong>Required!</strong>
-	A valid email address for the user. The password setting code
-	will be sent to this address. It must be unique within the
+	A valid email address for the user. It must be unique within the
 	site.
+        {% if config.get('MAIL_SERVER') %}
+        The password setting code will be sent to this address.
+        {% endif %}
       </small>
     </div>
   </div>

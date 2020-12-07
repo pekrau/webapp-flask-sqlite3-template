@@ -95,12 +95,12 @@ def admin_required(f):
     return wrap
 
 
-class NameConverter(werkzeug.routing.BaseConverter):
-    "URL route converter for a name."
+class IdentifierConverter(werkzeug.routing.BaseConverter):
+    "URL route converter for an identifier."
     def to_python(self, value):
-        if not constants.NAME_RX.match(value):
+        if not constants.ID_RX.match(value):
             raise werkzeug.routing.ValidationError
-        return value.lower()    # Case-insensitive
+        return value
 
 class IuidConverter(werkzeug.routing.BaseConverter):
     "URL route converter for a IUID."
