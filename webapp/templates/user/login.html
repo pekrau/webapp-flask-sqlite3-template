@@ -32,7 +32,7 @@
   </div>
 </form>
 
-{% if config['MAIL_SERVER'] %}
+{% if config['MAIL_SERVER'] or am_admin %}
 <div class="row pt-5">
   <div class="col-md-4 offset-md-2">
     <a href="{{ url_for('.register') }}"
@@ -40,18 +40,21 @@
       Register a new user account</a>
   </div>
 </div>
+{% else %}
+<div class="row pt-5">
+  <div class="col-md-4 offset-md-2">
+    You may not register a new user account; no email server has been
+    configured. Contact the admin.
+  </div>
+</div>
+{% endif %}
+
+{% if config['MAIL_SERVER'] %}
 <div class="row pt-4">
   <div class="col-md-4 offset-md-2">
     <a href="{{ url_for('.reset') }}"
        class="btn btn-block btn-outline-primary">
       Reset password for an existing user account</a>
-  </div>
-</div>
-{% else %}
-<div class="row pt-5">
-  <div class="col-md-4 offset-md-2">
-    Users may not register, nor can password be reset; no email server has
-    been configured. Contact the admin for the site.
   </div>
 </div>
 {% endif %}
