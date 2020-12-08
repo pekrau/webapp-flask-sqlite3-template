@@ -1,6 +1,7 @@
 "Web app template."
 
 import flask
+import jinja2.utils
 
 import webapp.about
 import webapp.config
