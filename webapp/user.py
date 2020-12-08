@@ -189,8 +189,7 @@ def password():
                 if not username: raise ValueError
                 user = get_user(username=username)
                 if user is None: raise ValueError
-                if flask.g.am_admin and \
-                   flask.g.current_user["username"].lower() != username.lower():
+                if am_admin_and_not_self(user):
                     pass        # No check for either code or current password.
                 elif flask.current_app.config["MAIL_SERVER"]:
                     code = flask.request.form.get("code") or ""
@@ -517,6 +516,5 @@ def am_admin_or_self(user):
 
 def am_admin_and_not_self(user):
     "Is the current user admin, but not the same as the given user?"
-    if flask.g.am_admin:
-        return flask.g.current_user["username"].lower() != user["username"].lower()
-    return False
+    return flask.g.am_admin and \
+        flask.g.current_user["username"].lower() != user["username"].lower()
