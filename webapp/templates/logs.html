@@ -12,9 +12,7 @@
       <th>User</th>
       <th>Remote address</th>
       <th>User agent</th>
-      <th>Added keys</th>
-      <th>Updated items</th>
-      <th>Removed items</th>
+      <th>Diff</th>
     </tr>
   </thead>
   <tbody>
@@ -24,9 +22,7 @@
       <td>{{ log['username'] or '-' }}</td>
       <td>{{ log['remote_addr'] or '-' }}</td>
       <td>{{ log['user_agent'] or '-' }}</td>
-      <td><pre>{{ log['added'] | tojson(indent=2) }}</pre></td>
-      <td><pre>{{ log['updated'] | tojson(indent=2) }}</pre></td>
-      <td><pre>{{ log['removed'] | tojson(indent=2) }}</pre></td>
+      <td><pre>{{ log['diff'] | tojson2 }}</pre></td>
     </tr>
     {% endfor %}
   </tbody>

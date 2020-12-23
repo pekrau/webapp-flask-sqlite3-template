@@ -210,11 +210,11 @@ def password():
             return utils.error(error, flask.url_for(".password",
                                                     username=username,
                                                     code=code))
-            with UserSaver(user) as saver:
-                saver.set_password(password)
-            utils.get_logger().info(f"password user {user['username']}")
-            if not flask.g.current_user:
-                do_login(username, password)
+        with UserSaver(user) as saver:
+            saver.set_password(password)
+        utils.get_logger().info(f"password user {user['username']}")
+        if not flask.g.current_user:
+            do_login(username, password)
         return flask.redirect(flask.url_for("home"))
 
 @blueprint.route("/display/<identifier:username>")
@@ -330,7 +330,7 @@ def disable(username):
 class UserSaver(BaseSaver):
     "User document saver context."
 
-    HIDDEN_FIELDS = ["password"]
+    HIDDEN_VALUE_PATHS = [["password"]]
 
     def initialize(self):
         "Set the status for a new user."
@@ -388,6 +388,7 @@ class UserSaver(BaseSaver):
                 raise ValueError("password too short")
             self.doc["password"] = generate_password_hash(
                 password, salt_length=config["SALT_LENGTH"])
+            print("set password")
 
     def set_apikey(self):
         "Set a new API key."
@@ -403,12 +404,12 @@ class UserSaver(BaseSaver):
             with flask.g.db:
                 cursor.execute(f"INSERT INTO users ({','.join(KEYS)})"
                                f" VALUES ({','.join('?'*len(KEYS))})",
-                               [self.doc[k] for k in KEYS])
+                               [self.doc.get(k) for k in KEYS])
         else:
             with flask.g.db:
                 keys = KEYS[1:] # Skip 'iuid'
                 assignments = [f"{k}=?" for k in keys]
-                values = [self.doc[k] for k in keys]
+                values = [self.doc.get(k) for k in keys]
                 values.append(self.doc["iuid"])
                 cursor.execute("UPDATE users SET"
                                f" {','.join(assignments)}"

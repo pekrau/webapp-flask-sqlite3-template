@@ -29,9 +29,6 @@ utils.init(app)
 webapp.user.init(app)
 utils.mail.init_app(app)
 
-# Add template filters.
-app.add_template_filter(utils.thousands)
-
 @app.context_processor
 def setup_template_context():
     "Add useful stuff to the global context of Jinja2 templates."

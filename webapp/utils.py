@@ -17,15 +17,18 @@ import werkzeug.routing
 from webapp import constants
 
 def init(app):
-    "Initialize the database; create logs table."
+    """Initialize app.
+    - Add template filters.
+    - Create the logs table in the database.
+    """
+    app.add_template_filter(thousands)
+    app.add_template_filter(tojson2)
     db = get_db(app)
     with db:
         db.execute("CREATE TABLE IF NOT EXISTS logs"
                    "(iuid TEXT PRIMARY KEY,"
                    " docid TEXT NOT NULL,"
-                   " added TEXT NOT NULL,"
-                   " updated TEXT NOT NULL,"
-                   " removed TEXT NOT NULL,"
+                   " diff TEXT NOT NULL,"
                    " username TEXT,"
                    " remote_addr TEXT,"
                    " user_agent TEXT,"
@@ -213,6 +216,12 @@ def thousands(value):
     else:
         return value
 
+def tojson2(value, indent=2):
+    """Transform to string JSON representation keeping single-quotes
+    and indenting by 2 by default.
+    """
+    return json.dumps(value, indent=indent)
+
 def accept_json():
     "Return True if the header Accept contains the JSON content type."
     acc = flask.request.accept_mimetypes
@@ -254,15 +263,13 @@ def get_logs(docid):
     sorted by reverse timestamp.
     """
     cursor = flask.g.db.cursor()
-    cursor.execute("SELECT added, updated, removed, username,"
+    cursor.execute("SELECT diff, username,"
                    " remote_addr, user_agent, timestamp"
                    " FROM logs WHERE docid=?"
                    " ORDER BY timestamp DESC", (docid,))
     result = []
     for row in cursor:
         item = dict(zip(row.keys(), row))
-        item["added"] = json.loads(item["added"])
-        item["updated"] = json.loads(item["updated"])
-        item["removed"] = json.loads(item["removed"])
+        item["diff"] = json.loads(item["diff"])
         result.append(item)
     return result
