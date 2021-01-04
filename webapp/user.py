@@ -343,24 +343,24 @@ class UserSaver(BaseSaver):
         "Check that required fields have been set."
         for key in ["username", "email", "role", "status"]:
             if not self.doc.get(key):
-                raise ValueError("invalid user: %s not set" % key)
+                raise ValueError(f"Invalid user: {key} not set.")
 
     def set_username(self, username):
         "Username can be set only when creating the account."
         if "username" in self.doc:
-            raise ValueError("username cannot be changed")
+            raise ValueError("Username cannot be changed.")
         if not constants.ID_RX.match(username):
-            raise ValueError("invalid username; must be an identifier")
+            raise ValueError("Invalid username; must be an identifier.")
         if get_user(username=username):
-            raise ValueError("username already in use")
+            raise ValueError("Username already in use.")
         self.doc["username"] = username
 
     def set_email(self, email):
         email = email.lower()
         if not constants.EMAIL_RX.match(email):
-            raise ValueError("invalid email")
+            raise ValueError("Invalid email.")
         if get_user(email=email):
-            raise ValueError("email already in use")
+            raise ValueError("Email already in use.")
         self.doc["email"] = email
         if self.doc.get("status") == constants.PENDING:
             for expr in flask.current_app.config["USER_ENABLE_EMAIL_WHITELIST"]:
@@ -370,12 +370,12 @@ class UserSaver(BaseSaver):
 
     def set_status(self, status):
         if status not in constants.USER_STATUSES:
-            raise ValueError("invalid status")
+            raise ValueError("Invalid status.")
         self.doc["status"] = status
 
     def set_role(self, role):
         if role not in constants.USER_ROLES:
-            raise ValueError("invalid role")
+            raise ValueError("Invalid role.")
         self.doc["role"] = role
 
     def set_password(self, password=None):
@@ -385,7 +385,7 @@ class UserSaver(BaseSaver):
             self.doc["password"] = "code:%s" % utils.get_iuid()
         else:
             if len(password) < config["MIN_PASSWORD_LENGTH"]:
-                raise ValueError("password too short")
+                raise ValueError("Password too short.")
             self.doc["password"] = generate_password_hash(
                 password, salt_length=config["SALT_LENGTH"])
             print("set password")
