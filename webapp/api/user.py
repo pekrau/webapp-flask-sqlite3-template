@@ -39,7 +39,7 @@ def logs(username):
     if not webapp.user.am_admin_or_self(user):
         flask.abort(http.client.FORBIDDEN)
     return utils.jsonify(utils.get_json(user=get_user_basic(user),
-                                        logs=utils.get_logs(user["_id"])),
+                                        logs=utils.get_logs(user["iuid"])),
                          schema_url=utils.url_for("api_schema.logs"))
 
 def get_user_basic(user):

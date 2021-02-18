@@ -233,12 +233,6 @@ def get_json(**data):
     "Return the JSON structure after fixing up for external representation."
     result = {"$id": flask.request.url,
               "timestamp": get_time()}
-    try:
-        result["iuid"] = data.pop("_id")
-    except KeyError:
-        pass
-    data.pop("_rev", None)
-    data.pop("doctype", None)
     result.update(data)
     return result
 

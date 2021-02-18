@@ -14,7 +14,6 @@ from webapp import utils
 class BaseSaver:
     "Base entity saver context."
 
-    DOCTYPE = None
     EXCLUDE_PATHS = [["modified"]]
     HIDDEN_VALUE_PATHS = []
 

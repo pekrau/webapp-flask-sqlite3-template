@@ -1,6 +1,5 @@
-# webapp-flask-couchdb-template
+# webapp-flask-sqlite3-template
 
-A template for a web app based on Flask and CouchDB with user account handling.
+A template for a web app based on Flask and Sqlite3 with user account handling.
 
-Uses Python3, Flask, CouchDB server, CouchDB2 (Python module), jsonschema,
-Bootstrap, jQuery, DataTables.
+Uses Python3, Sqlite3, Flask, jsonschema, Bootstrap, jQuery, DataTables.
