@@ -2,16 +2,16 @@
 
 import re
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 class Constants:
     VERSION     = __version__
     SOURCE_NAME = "webapp-sqlite3"
     SOURCE_URL  = "https://github.com/pekrau/webapp-flask-sqlite3-template"
 
-    BOOTSTRAP_VERSION  = "4.5.3"
+    BOOTSTRAP_VERSION  = "4.6.0"
     JQUERY_VERSION     = "3.5.1"
-    DATATABLES_VERSION = "1.10.22"
+    DATATABLES_VERSION = "1.10.23"
 
     ID_RX    = re.compile(r"^[a-z][a-z0-9_-]*$", re.I)
     IUID_RX  = re.compile(r"^[a-f0-9]{32,32}$", re.I)
