@@ -240,10 +240,11 @@ def edit(username):
         return utils.error("Access not allowed.")
 
     if utils.http_GET():
+        deletable = am_admin_and_not_self(user) and is_empty(user)
         return flask.render_template("user/edit.html",
                                      user=user,
                                      change_role=am_admin_and_not_self(user),
-                                     deletable=is_empty(user))
+                                     deletable=deletable)
 
     elif utils.http_POST():
         with UserSaver(user) as saver:
@@ -426,7 +427,7 @@ def get_user(username=None, email=None, apikey=None):
     if username:
         cursor.execute(sql + " WHERE username=? COLLATE NOCASE", (username,))
     elif email:
-        cursor.execute(sql + " WHERE email=? COLLATE NOCASE", (email.lower(),))
+        cursor.execute(sql + " WHERE email=? COLLATE NOCASE", (email,))
     elif apikey:
         cursor.execute(sql + " WHERE apikey=?", (apikey,))
     else:
