@@ -8,13 +8,13 @@ Flask-Mail==0.9.1
 idna==2.8
 importlib-metadata==0.23
 itsdangerous==1.1.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 jsonschema==3.2.0
-Markdown==3.1.1
+Markdown==3.3.3
 MarkupSafe==1.1.1
 more-itertools==7.2.0
 pyrsistent==0.15.5
-requests==2.25.0
+requests==2.25.1
 six==1.13.0
 urllib3==1.25.7
 Werkzeug==0.16.0
