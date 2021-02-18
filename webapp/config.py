@@ -49,6 +49,7 @@ def init(app):
     """
     # Set the defaults specified above.
     app.config.from_mapping(DEFAULT_SETTINGS)
+
     # Modify the configuration from a JSON settings file.
     try:
         filepaths = [os.environ["SETTINGS_FILEPATH"]]
@@ -64,6 +65,7 @@ def init(app):
         else:
             app.config["SETTINGS_FILE"] = filepath
             break
+
     # Modify the configuration from environment variables.
     for key, convert in [("DEBUG", utils.to_bool),
                          ("SECRET_KEY", str),
@@ -79,7 +81,19 @@ def init(app):
             app.config[key] = convert(os.environ[key])
         except (KeyError, TypeError, ValueError):
             pass
+
+    # Clean up filepaths.
+    for key in ["SITE_STATIC_DIRPATH", "LOG_FILEPATH", "SQLITE3_FILEPATH"]:
+        path = app.config[key]
+        if not path: continue
+        path = os.path.expanduser(path)
+        path = os.path.expandvars(path)
+        path = os.path.normpath(path)
+        path = os.path.abspath(path)
+        app.config[key] = path
+
     # Sanity check; should not execute if this fails.
     assert app.config["SECRET_KEY"]
     assert app.config["SALT_LENGTH"] > 6
     assert app.config["MIN_PASSWORD_LENGTH"] > 4
+    assert app.config["SQLITE3_FILEPATH"]
