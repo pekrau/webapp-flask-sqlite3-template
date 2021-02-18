@@ -254,7 +254,7 @@ def get_db(app=None):
     "Get the connection to the Sqlite3 database file."
     if app is None:
         app = flask.current_app
-    db = sqlite3.connect(app.config["SQLITE3_FILE"])
+    db = sqlite3.connect(app.config["SQLITE3_FILEPATH"])
     db.row_factory = sqlite3.Row
     return db
 
