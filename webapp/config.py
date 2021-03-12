@@ -69,9 +69,6 @@ def init(app):
     # Modify the configuration from environment variables.
     for key, convert in [("DEBUG", utils.to_bool),
                          ("SECRET_KEY", str),
-                         ("COUCHDB_URL", str),
-                         ("COUCHDB_USERNAME", str),
-                         ("COUCHDB_PASSWORD", str),
                          ("MAIL_SERVER", str),
                          ("MAIL_USE_TLS", utils.to_bool),
                          ("MAIL_USERNAME", str),
