@@ -70,6 +70,12 @@ def debug():
     result.append("</table>")
     return jinja2.utils.Markup("\n".join(result))
 
+@app.route("/status")
+def status():
+    "Return JSON for the current status."
+    return dict(status="ok")
+
+
 # Set up the URL map.
 app.register_blueprint(webapp.about.blueprint, url_prefix="/about")
 app.register_blueprint(webapp.user.blueprint, url_prefix="/user")
