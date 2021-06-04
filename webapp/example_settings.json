@@ -1,5 +1,4 @@
 {
-  "DEBUG": true,
   "LOG_DEBUG": true,
   "SECRET_KEY": "alpw409nfk23490fam:-12",
   "SQLITE3_FILEPATH": "example_db.sqlite3",
