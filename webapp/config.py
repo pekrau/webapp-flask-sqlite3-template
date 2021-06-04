@@ -66,8 +66,7 @@ def init(app):
             break
 
     # Modify the configuration from environment variables.
-    for key, convert in [("DEBUG", utils.to_bool),
-                         ("SECRET_KEY", str),
+    for key, convert in [("SECRET_KEY", str),
                          ("MAIL_SERVER", str),
                          ("MAIL_USE_TLS", utils.to_bool),
                          ("MAIL_USERNAME", str),
