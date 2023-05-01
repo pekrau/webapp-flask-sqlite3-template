@@ -3,7 +3,7 @@ blinker==1.4
 certifi==2022.12.7
 chardet==3.0.4
 Click==7.0
-Flask==1.1.2
+Flask==2.3.2
 Flask-Mail==0.9.1
 idna==2.8
 importlib-metadata==0.23
