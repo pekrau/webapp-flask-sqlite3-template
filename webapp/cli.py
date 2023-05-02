@@ -6,7 +6,7 @@ import sys
 
 import flask
 
-import webapp.app
+import webapp.main
 import webapp.user
 
 from webapp import constants
@@ -55,7 +55,7 @@ def main():
     pargs = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_usage()
-    with webapp.app.app.app_context():
+    with webapp.main.app.app_context():
         flask.g.db = utils.get_db()
         execute(pargs)
 

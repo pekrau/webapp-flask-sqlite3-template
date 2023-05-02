@@ -1,4 +1,4 @@
-"Web app template."
+"Web app template; main."
 
 import flask
 import jinja2.utils
