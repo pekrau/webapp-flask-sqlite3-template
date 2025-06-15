@@ -13,7 +13,7 @@ jsonschema==3.2.0
 MarkupSafe==2.1.2
 more-itertools==7.2.0
 pyrsistent==0.15.5
-requests==2.32.0
+requests==2.32.4
 six==1.13.0
 urllib3==1.26.19
 Werkzeug==3.0.6
