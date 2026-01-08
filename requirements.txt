@@ -15,6 +15,6 @@ more-itertools==7.2.0
 pyrsistent==0.15.5
 requests==2.32.4
 six==1.13.0
-urllib3==2.6.0
+urllib3==2.6.3
 Werkzeug==3.1.4
 zipp==3.19.1
